@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "meter_reading")
 @Data
@@ -29,5 +32,19 @@ public class MeterReading {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false,length = 20)
     private ReadingType readingType;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal consumptionKwh;
+
+    @Column(nullable = false)
+    private LocalDateTime readingDate;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 
 }
