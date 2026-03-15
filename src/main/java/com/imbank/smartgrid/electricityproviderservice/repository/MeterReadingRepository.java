@@ -10,12 +10,15 @@ import org.springframework.stereotype.Repository;
 
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MeterReadingRepository extends JpaRepository<MeterReading, Long> {
     List<MeterReading> findByMeterId(String meterId);
+    Optional<MeterReading>findTopByMeterIdOrderByReadingDateDesc(String meterId);
     Page<MeterReading> findByMeterId(String meterId, Pageable pageable);
     Page<MeterReading>findByProviderName(ProviderName providerName,Pageable pageable);
     Page<MeterReading>findByCitizenId(String citizenId,Pageable pageable);
@@ -28,4 +31,7 @@ public interface MeterReadingRepository extends JpaRepository<MeterReading, Long
                                                  @Param("startDate") LocalDateTime startDate,
                                                  @Param("endDate") LocalDateTime endDate);
     Long countByProviderName(ProviderName providerName);
+    @Query("SELECT AVG(m.consumptionKwh) FROM MeterReading m WHERE m.providerName = :provider")
+    BigDecimal averageConsumptionByProvider(@Param("provider") ProviderName provider);
+
 }

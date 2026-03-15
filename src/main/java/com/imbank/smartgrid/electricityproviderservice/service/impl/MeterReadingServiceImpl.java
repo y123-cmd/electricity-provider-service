@@ -29,12 +29,19 @@ import java.util.List;
 @Transactional
 public class MeterReadingServiceImpl implements MeterReadingService {
 
+    private static final String METER_ID_PATTERN = "^(KPLC|TANESCO|UMEME)-(SM|MN)-\\d{5}$";
+    private static final String CITIZEN_ID_PATTERN = "^CIT-(KPLC|TANESCO|UMEME)-\\d{5}$";
+
     private final MeterReadingRepository repository;
     private final MeterReadingMapper mapper;
 
     @Override
     public MeterReadingResponse saveReading(MeterReadingRequest request) {
-        log.info("processing reading submission for meter: {}", request.getMeterId());
+        log.info("Processing meter reading | meterId={} | citizenId={} | provider={} | consumption={}kWh",
+                request.getMeterId(),
+                request.getCitizenId(),
+                request.getProviderName(),
+                request.getConsumptionKwh());
 
         validateReadingRequest(request);
         validateReadingProgression(request);
@@ -77,32 +84,38 @@ public class MeterReadingServiceImpl implements MeterReadingService {
                     "Citizen ID must follow format: CIT-PROVIDER-XXXXX (e.g., CIT-KPLC-00001)"
             );
         }
+        validateProviderConsistency(request);
     }
 
     private boolean isValidMeterIdFormat(String meterId) {
-        String pattern = "^(KPLC|TANESCO|UMEME)-(SM|MN)-\\d{5}$";
-        return meterId != null && meterId.matches(pattern);
+        return meterId != null && meterId.matches(METER_ID_PATTERN);
     }
 
     private boolean isValidCitizenIdFormat(String citizenId) {
-        String pattern = "^CIT-(KPLC|TANESCO|UMEME)-\\d{5}$";
-        return citizenId != null && citizenId.matches(pattern);
+        return citizenId != null && citizenId.matches(CITIZEN_ID_PATTERN);
+    }
+
+    private void validateProviderConsistency(MeterReadingRequest request) {
+        if (!request.getMeterId().startsWith(request.getProviderName().name())) {
+            throw new InvalidReadingException(
+                    "providerMismatch",
+                    request.getMeterId(),
+                    "Meter ID does not match provider name"
+            );
+        }
     }
 
     private void validateReadingProgression(MeterReadingRequest request) {
-        List<MeterReading> previousReadings = repository.findByMeterId(request.getMeterId());
-        if (!previousReadings.isEmpty()) {
-            previousReadings.sort((a, b) -> b.getReadingDate().compareTo(a.getReadingDate()));
-            MeterReading lastReading = previousReadings.get(0);
-
-            if (request.getConsumptionKwh().compareTo(lastReading.getConsumptionKwh()) <= 0) {
-                throw new ReadingProgressionException(
-                        request.getMeterId(),
-                        request.getConsumptionKwh(),
-                        lastReading.getConsumptionKwh()
-                );
-            }
-        }
+        repository.findTopByMeterIdOrderByReadingDateDesc(request.getMeterId())
+                .ifPresent(lastReading -> {
+                    if (request.getConsumptionKwh().compareTo(lastReading.getConsumptionKwh()) <= 0) {
+                        throw new ReadingProgressionException(
+                                request.getMeterId(),
+                                request.getConsumptionKwh(),
+                                lastReading.getConsumptionKwh()
+                        );
+                    }
+                });
     }
 
     @Override
@@ -145,6 +158,15 @@ public class MeterReadingServiceImpl implements MeterReadingService {
 @Override
     public List<MeterReadingResponse>getReadingsByDateRange(LocalDateTime startDate, LocalDateTime endDate){
         log.info("Fetching readings between {} and {}", startDate,endDate);
+
+        if(startDate.isAfter(endDate)){
+            throw new InvalidReadingException(
+                    "dataRange",
+                    startDate,
+                    "start date cannot be after end date"
+            );
+        }
+
         List<MeterReading> entities = repository.findByDateRange(startDate,endDate);
         return mapper.toResponseList(entities);
 }
@@ -153,6 +175,12 @@ public class MeterReadingServiceImpl implements MeterReadingService {
         log.info("Counting readings for provider: {}", providerName);
         return repository.countByProviderName(providerName);
 }
+    @Override
+    public BigDecimal getAverageConsumption(ProviderName providerName) {
+        log.info("Calculating average consumption for provider: {}", providerName);
+        BigDecimal average = repository.averageConsumptionByProvider(providerName);
+        return average != null ? average : BigDecimal.ZERO;
+    }
 
 }
 
