@@ -1,4 +1,4 @@
-package com.imbank.smartgrid.electricityproviderservice.service.impl;
+package com.imbank.smartgrid.electricityproviderservice.impl;
 
 import com.imbank.smartgrid.electricityproviderservice.dto.request.MeterReadingRequest;
 import com.imbank.smartgrid.electricityproviderservice.dto.response.MeterReadingResponse;
@@ -10,6 +10,7 @@ import com.imbank.smartgrid.electricityproviderservice.exception.ReadingProgress
 import com.imbank.smartgrid.electricityproviderservice.exception.ResourceNotFoundException;
 import com.imbank.smartgrid.electricityproviderservice.mapper.MeterReadingMapper;
 import com.imbank.smartgrid.electricityproviderservice.repository.MeterReadingRepository;
+import com.imbank.smartgrid.electricityproviderservice.service.impl.MeterReadingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

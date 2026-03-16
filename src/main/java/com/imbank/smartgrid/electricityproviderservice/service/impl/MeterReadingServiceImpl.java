@@ -180,7 +180,31 @@ public class MeterReadingServiceImpl implements MeterReadingService {
         log.info("Calculating average consumption for provider: {}", providerName);
         BigDecimal average = repository.averageConsumptionByProvider(providerName);
         return average != null ? average : BigDecimal.ZERO;
+
     }
+    @Override
+    public List<MeterReadingResponse> saveReadingsBatch(List<MeterReadingRequest> requests) {
+        log.info("Processing batch meter readings | total readings={}", requests.size());
+
+        for (MeterReadingRequest request : requests) {
+            validateReadingRequest(request);
+            validateReadingProgression(request);
+        }
+
+
+        List<MeterReading> entities = requests.stream()
+                .map(mapper::toEntity)
+                .toList();
+
+
+        List<MeterReading> savedEntities = repository.saveAll(entities);
+
+        log.info("Successfully saved {} meter readings in batch", savedEntities.size());
+
+
+        return mapper.toResponseList(savedEntities);
+    }
+
 
 }
 
