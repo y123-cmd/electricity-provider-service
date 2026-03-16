@@ -67,7 +67,7 @@ public class MeterReadingControllerTest {
 
     @Test
     @WithMockUser
-    void createReading_ShouldReturn201() throws Exception {
+    void createReading_ShouldReturn201_WhenReadingIsCreated() throws Exception {
         MeterReadingRequest request = buildReadingRequest();
         when(meterReadingService.saveReading(any(MeterReadingRequest.class)))
                 .thenReturn(buildReading());
@@ -82,7 +82,7 @@ public class MeterReadingControllerTest {
 
     @Test
     @WithMockUser
-    void getReadingById_ShouldReturn200() throws Exception {
+    void getReadingById_ShouldReturn200_WhenReadingExists() throws Exception {
         when(meterReadingService.getReadingById(1L)).thenReturn(buildReading());
 
         mockMvc.perform(get("/api/v1/meter-readings/1"))
@@ -92,7 +92,7 @@ public class MeterReadingControllerTest {
 
     @Test
     @WithMockUser
-    void getAllReadings_ShouldReturnPaginatedReadings() throws Exception {
+    void getAllReadings_ShouldReturnPaginatedReadings_WhenReadingsExists() throws Exception {
         List<MeterReadingResponse> readings = List.of(buildReading());
         Page<MeterReadingResponse> page = new PageImpl<>(readings, PageRequest.of(0, 10), readings.size());
 
@@ -110,7 +110,7 @@ public class MeterReadingControllerTest {
 
     @Test
     @WithMockUser
-    void getReadingsByMeterId_ShouldReturnPaginatedReadings() throws Exception {
+    void getReadingsByMeterId_ShouldReturnPaginatedReadings_WhenMeterIdExists() throws Exception {
         List<MeterReadingResponse> readings = List.of(buildReading());
         Page<MeterReadingResponse> page = new PageImpl<>(readings, PageRequest.of(0, 10), readings.size());
 
@@ -126,7 +126,7 @@ public class MeterReadingControllerTest {
 
     @Test
     @WithMockUser
-    void getReadingsByProvider_ShouldReturnPaginatedReadings() throws Exception {
+    void getReadingsByProvider_ShouldReturnPaginatedReadings_WhenProviderExists() throws Exception {
         List<MeterReadingResponse> readings = List.of(buildReading());
         Page<MeterReadingResponse> page = new PageImpl<>(readings, PageRequest.of(0, 10), readings.size());
 
@@ -142,7 +142,7 @@ public class MeterReadingControllerTest {
 
     @Test
     @WithMockUser
-    void getReadingsByCitizenId_ShouldReturnPaginatedReadings() throws Exception {
+    void getReadingsByCitizenId_ShouldReturnPaginatedReadings_WhenCitizenIdExists() throws Exception {
         List<MeterReadingResponse> readings = List.of(buildReading());
         Page<MeterReadingResponse> page = new PageImpl<>(readings, PageRequest.of(0, 10), readings.size());
 
@@ -158,7 +158,7 @@ public class MeterReadingControllerTest {
 
     @Test
     @WithMockUser
-    void getReadingsByDateRange_ShouldReturnReadings() throws Exception {
+    void getReadingsByDateRange_ShouldReturnReadings_WhenReadingsExistsInRange() throws Exception {
         List<MeterReadingResponse> readings = List.of(buildReading());
         when(meterReadingService.getReadingsByDateRange(any(), any())).thenReturn(readings);
 
@@ -171,7 +171,7 @@ public class MeterReadingControllerTest {
 
     @Test
     @WithMockUser
-    void getAverageConsumption_ShouldReturnValue() throws Exception {
+    void getAverageConsumption_ShouldReturnValue_WhenProviderHasReadings() throws Exception {
         when(meterReadingService.getAverageConsumption(ProviderName.KPLC)).thenReturn(new BigDecimal("120.50"));
 
         mockMvc.perform(get("/api/v1/meter-readings/average/KPLC"))
@@ -181,7 +181,7 @@ public class MeterReadingControllerTest {
 
     @Test
     @WithMockUser
-    void countReadingsByProvider_ShouldReturnValue() throws Exception {
+    void countReadingsByProvider_ShouldReturnValue_WhenProviderHasReadings() throws Exception {
         when(meterReadingService.countReadingsByProvider(ProviderName.KPLC)).thenReturn(5L);
 
         mockMvc.perform(get("/api/v1/meter-readings/count/KPLC"))
