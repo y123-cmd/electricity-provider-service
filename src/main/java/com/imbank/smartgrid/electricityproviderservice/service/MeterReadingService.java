@@ -20,4 +20,5 @@ public interface MeterReadingService {
     List<MeterReadingResponse>getReadingsByDateRange(LocalDateTime startDate, LocalDateTime endDate);
     BigDecimal getAverageConsumption(ProviderName providerName);
     Long countReadingsByProvider(ProviderName providerName);
+    List<MeterReadingResponse> saveReadingsBatch(List<MeterReadingRequest> requests);
 }
