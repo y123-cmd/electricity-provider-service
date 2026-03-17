@@ -26,6 +26,7 @@ public class MeterReadingMapper {
         response.setMeterId(entity.getMeterId());
         response.setCitizenId(entity.getCitizenId());
         response.setProviderName(entity.getProviderName());
+        response.setReadingType(entity.getReadingType());
         response.setConsumptionKwh(entity.getConsumptionKwh());
         response.setReadingDate(entity.getReadingDate());
         response.setCreatedAt(entity.getCreatedAt());

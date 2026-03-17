@@ -29,4 +29,3 @@ jobs:
 
       - name: Generate coverage report
         run: mvn jacoco:report
-        continue-on-error: true
