@@ -184,21 +184,26 @@ class MeterReadingServiceImplTest {
     void saveReading_ShouldThrowException_WhenReadingNotIncreasing() {
         MeterReading previousReading = new MeterReading();
         previousReading.setConsumptionKwh(new BigDecimal("200.00"));
-
         validRequest.setConsumptionKwh(new BigDecimal("150.00"));
-
         when(repository.findTopByMeterIdOrderByReadingDateDesc(validRequest.getMeterId()))
                 .thenReturn(Optional.of(previousReading));
 
         assertThatThrownBy(() -> service.saveReading(validRequest))
-                .isInstanceOf(ReadingProgressionException.class);
+                .isInstanceOf(ReadingProgressionException.class)
+                .satisfies(ex -> {
+                            ReadingProgressionException e = (ReadingProgressionException) ex;
+                            assertThat(e.getMeterId()).isEqualTo("KPLC-SM-00001");
+                            assertThat(e.getCurrentReading()).isEqualTo(new BigDecimal("150.00"));
+                            assertThat(e.getPreviousReading()).isEqualTo(new BigDecimal("200.00"));
+                        });
 
         verify(repository, never()).save(any());
     }
 
+
     @Test
     @DisplayName("Should throw exception when new reading equals previous")
-    void saveReading_ShouldThrowException_WhenReadingEqualsPrevi() {
+    void saveReading_ShouldThrowException_WhenReadingEqualsPrevious() {
         MeterReading previousReading = new MeterReading();
         previousReading.setConsumptionKwh(new BigDecimal("150.50"));
 

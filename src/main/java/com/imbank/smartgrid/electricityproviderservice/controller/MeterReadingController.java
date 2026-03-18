@@ -81,14 +81,14 @@ public class MeterReadingController {
     })
     @GetMapping
     public ResponseEntity<ApiResponse<List<MeterReadingResponse>>> getAllReadings(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<MeterReadingResponse> readingPage = meterReadingService.getAllReadings(pageable);
 
         Pagination pagination = new Pagination(
-                readingPage.getNumber(),
+                readingPage.getNumber() + 1,
                 readingPage.getSize(),
                 readingPage.getTotalElements(),
                 readingPage.getTotalPages()
@@ -101,14 +101,14 @@ public class MeterReadingController {
     @GetMapping("/meter/{meterId}")
     public ResponseEntity<ApiResponse<List<MeterReadingResponse>>> getReadingsByMeterId(
             @Parameter(description = "Meter ID") @PathVariable String meterId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<MeterReadingResponse> readingPage = meterReadingService.getReadingsByMeterId(meterId, pageable);
 
         Pagination pagination = new Pagination(
-                readingPage.getNumber(),
+                readingPage.getNumber() + 1,
                 readingPage.getSize(),
                 readingPage.getTotalElements(),
                 readingPage.getTotalPages()
@@ -117,19 +117,18 @@ public class MeterReadingController {
         return ResponseEntity.ok(new ApiResponse<>(200, "Meter readings retrieved successfully", readingPage.getContent(), pagination));
     }
 
-    // ---------------- GET READINGS BY PROVIDER ----------------
     @Operation(summary = "Get readings by provider", description = "Retrieves readings for a specific electricity provider")
     @GetMapping("/provider/{providerName}")
     public ResponseEntity<ApiResponse<List<MeterReadingResponse>>> getReadingsByProvider(
             @Parameter(description = "Provider name") @PathVariable ProviderName providerName,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<MeterReadingResponse> readingPage = meterReadingService.getReadingsByProvider(providerName, pageable);
 
         Pagination pagination = new Pagination(
-                readingPage.getNumber(),
+                readingPage.getNumber() + 1,
                 readingPage.getSize(),
                 readingPage.getTotalElements(),
                 readingPage.getTotalPages()
@@ -142,14 +141,14 @@ public class MeterReadingController {
     @GetMapping("/citizen/{citizenId}")
     public ResponseEntity<ApiResponse<List<MeterReadingResponse>>> getReadingsByCitizenId(
             @Parameter(description = "Citizen ID") @PathVariable String citizenId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<MeterReadingResponse> readingPage = meterReadingService.getReadingsByCitizenId(citizenId, pageable);
 
         Pagination pagination = new Pagination(
-                readingPage.getNumber(),
+                readingPage.getNumber() + 1,
                 readingPage.getSize(),
                 readingPage.getTotalElements(),
                 readingPage.getTotalPages()
