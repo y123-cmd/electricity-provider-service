@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(MeterReadingController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 public class MeterReadingControllerTest {
 
@@ -66,7 +68,6 @@ public class MeterReadingControllerTest {
     }
 
     @Test
-    @WithMockUser
     void createReading_ShouldReturn201_WhenReadingIsCreated() throws Exception {
         MeterReadingRequest request = buildReadingRequest();
         when(meterReadingService.saveReading(any(MeterReadingRequest.class)))
@@ -81,7 +82,6 @@ public class MeterReadingControllerTest {
     }
 
     @Test
-    @WithMockUser
     void getReadingById_ShouldReturn200_WhenReadingExists() throws Exception {
         when(meterReadingService.getReadingById(1L)).thenReturn(buildReading());
 
@@ -91,7 +91,6 @@ public class MeterReadingControllerTest {
     }
 
     @Test
-    @WithMockUser
     void getAllReadings_ShouldReturnPaginatedReadings_WhenReadingsExists() throws Exception {
         List<MeterReadingResponse> readings = List.of(buildReading());
         Page<MeterReadingResponse> page = new PageImpl<>(readings, PageRequest.of(0, 10), readings.size());
@@ -99,17 +98,16 @@ public class MeterReadingControllerTest {
         when(meterReadingService.getAllReadings(any())).thenReturn(page);
 
         mockMvc.perform(get("/api/v1/meter-readings")
-                        .param("page", "0")
+                        .param("page", "1")
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].meterId").value("KPLC-SM-00001"))
-                .andExpect(jsonPath("$.pagination.page").value(0))
+                .andExpect(jsonPath("$.pagination.page").value(1))
                 .andExpect(jsonPath("$.pagination.size").value(10))
                 .andExpect(jsonPath("$.pagination.totalRecords").value(1));
     }
 
     @Test
-    @WithMockUser
     void getReadingsByMeterId_ShouldReturnPaginatedReadings_WhenMeterIdExists() throws Exception {
         List<MeterReadingResponse> readings = List.of(buildReading());
         Page<MeterReadingResponse> page = new PageImpl<>(readings, PageRequest.of(0, 10), readings.size());
@@ -117,7 +115,7 @@ public class MeterReadingControllerTest {
         when(meterReadingService.getReadingsByMeterId(eq("KPLC-SM-00001"), any())).thenReturn(page);
 
         mockMvc.perform(get("/api/v1/meter-readings/meter/KPLC-SM-00001")
-                        .param("page", "0")
+                        .param("page", "1")
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].meterId").value("KPLC-SM-00001"))
@@ -125,7 +123,6 @@ public class MeterReadingControllerTest {
     }
 
     @Test
-    @WithMockUser
     void getReadingsByProvider_ShouldReturnPaginatedReadings_WhenProviderExists() throws Exception {
         List<MeterReadingResponse> readings = List.of(buildReading());
         Page<MeterReadingResponse> page = new PageImpl<>(readings, PageRequest.of(0, 10), readings.size());
@@ -133,7 +130,7 @@ public class MeterReadingControllerTest {
         when(meterReadingService.getReadingsByProvider(eq(ProviderName.KPLC), any())).thenReturn(page);
 
         mockMvc.perform(get("/api/v1/meter-readings/provider/KPLC")
-                        .param("page", "0")
+                        .param("page", "1")
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].meterId").value("KPLC-SM-00001"))
@@ -141,7 +138,6 @@ public class MeterReadingControllerTest {
     }
 
     @Test
-    @WithMockUser
     void getReadingsByCitizenId_ShouldReturnPaginatedReadings_WhenCitizenIdExists() throws Exception {
         List<MeterReadingResponse> readings = List.of(buildReading());
         Page<MeterReadingResponse> page = new PageImpl<>(readings, PageRequest.of(0, 10), readings.size());
@@ -149,7 +145,7 @@ public class MeterReadingControllerTest {
         when(meterReadingService.getReadingsByCitizenId(eq("CIT-KPLC-00001"), any())).thenReturn(page);
 
         mockMvc.perform(get("/api/v1/meter-readings/citizen/CIT-KPLC-00001")
-                        .param("page", "0")
+                        .param("page", "1")
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].meterId").value("KPLC-SM-00001"))
@@ -157,7 +153,6 @@ public class MeterReadingControllerTest {
     }
 
     @Test
-    @WithMockUser
     void getReadingsByDateRange_ShouldReturnReadings_WhenReadingsExistsInRange() throws Exception {
         List<MeterReadingResponse> readings = List.of(buildReading());
         when(meterReadingService.getReadingsByDateRange(any(), any())).thenReturn(readings);
@@ -170,7 +165,6 @@ public class MeterReadingControllerTest {
     }
 
     @Test
-    @WithMockUser
     void getAverageConsumption_ShouldReturnValue_WhenProviderHasReadings() throws Exception {
         when(meterReadingService.getAverageConsumption(ProviderName.KPLC)).thenReturn(new BigDecimal("120.50"));
 
@@ -180,7 +174,6 @@ public class MeterReadingControllerTest {
     }
 
     @Test
-    @WithMockUser
     void countReadingsByProvider_ShouldReturnValue_WhenProviderHasReadings() throws Exception {
         when(meterReadingService.countReadingsByProvider(ProviderName.KPLC)).thenReturn(5L);
 

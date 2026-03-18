@@ -1,11 +1,13 @@
 package com.imbank.smartgrid.electricityproviderservice.exception;
 
 import com.imbank.smartgrid.electricityproviderservice.controller.MeterReadingController;
+import com.imbank.smartgrid.electricityproviderservice.security.SecurityConfig;
 import com.imbank.smartgrid.electricityproviderservice.service.MeterReadingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(MeterReadingController.class)
 @ActiveProfiles("test")
+@Import(SecurityConfig.class)
 public class GlobalExceptionHandlerTest {
     @Autowired
     private MockMvc mockMvc;
