@@ -11,5 +11,4 @@ class ElectricityProviderServiceApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }
