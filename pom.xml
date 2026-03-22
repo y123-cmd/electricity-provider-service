@@ -102,6 +102,7 @@
     </dependencyManagement>
 
     <build>
+        <finalName>electricity-provider-service</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
