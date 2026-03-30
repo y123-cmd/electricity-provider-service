@@ -1,5 +1,7 @@
 package com.imbank.smartgrid.electricityproviderservice.service.impl;
 
+import com.imbank.smartgrid.electricityproviderservice.client.CitizenServiceClient;
+import com.imbank.smartgrid.electricityproviderservice.client.request.CallbackRequest;
 import com.imbank.smartgrid.electricityproviderservice.dto.request.MeterReadingRequest;
 import com.imbank.smartgrid.electricityproviderservice.dto.response.MeterReadingResponse;
 import com.imbank.smartgrid.electricityproviderservice.entity.MeterReading;
@@ -12,6 +14,7 @@ import com.imbank.smartgrid.electricityproviderservice.repository.MeterReadingRe
 import com.imbank.smartgrid.electricityproviderservice.service.MeterReadingService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,11 @@ public class MeterReadingServiceImpl implements MeterReadingService {
 
     private final MeterReadingRepository repository;
     private final MeterReadingMapper mapper;
+    private final CitizenServiceClient citizenServiceClient;
+
+    @Value("${callback.secret}")
+    private String callbackSecret;
+
 
     @Override
     public MeterReadingResponse saveReading(MeterReadingRequest request) {
@@ -48,6 +56,20 @@ public class MeterReadingServiceImpl implements MeterReadingService {
 
         MeterReading entity = mapper.toEntity(request);
         MeterReading saved = repository.save(entity);
+
+        try{
+            CallbackRequest callbackRequest = new CallbackRequest(
+                    saved.getCitizenId(),
+                    saved.getMeterId(),
+                    saved.getProviderName().name(),
+                    "SUCCESS",
+                    "Reading Saved Successfully"
+            );
+            citizenServiceClient.sendCallback(callbackSecret, callbackRequest);
+            log.info("callback sent successfully for citizenId: {}", saved.getCitizenId());
+        }catch (Exception e){
+            log.warn("failed to send callback for citizenId: {} - {}",saved.getCitizenId(),e.getMessage());
+        }
 
         log.info("Successfully saved reading ID: {} for meter: {} with consumption: {} kWh",
                 saved.getReadingId(), saved.getMeterId(), saved.getConsumptionKwh());
