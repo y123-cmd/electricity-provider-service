@@ -26,3 +26,12 @@ eureka:
 
 callback:
      secret: smartgrid-callback-secret-2024
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
