@@ -37,4 +37,6 @@ public class MeterReadingRequest {
     @NotNull(message = "Reading type is required")
     private ReadingType readingType;
 
+    private BigDecimal currentReading;
+
 }

@@ -42,6 +42,9 @@ public class MeterReading {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(precision = 10, scale = 2)
+    private BigDecimal currentReading;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
