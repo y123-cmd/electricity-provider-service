@@ -130,11 +130,11 @@ public class MeterReadingServiceImpl implements MeterReadingService {
     private void validateReadingProgression(MeterReadingRequest request) {
         repository.findTopByMeterIdOrderByReadingDateDesc(request.getMeterId())
                 .ifPresent(lastReading -> {
-                    if (request.getConsumptionKwh().compareTo(lastReading.getConsumptionKwh()) <= 0) {
+                    if (request.getCurrentReading().compareTo(lastReading.getCurrentReading()) <= 0) {
                         throw new ReadingProgressionException(
                                 request.getMeterId(),
-                                request.getConsumptionKwh(),
-                                lastReading.getConsumptionKwh()
+                                request.getCurrentReading(),
+                                lastReading.getCurrentReading()
                         );
                     }
                 });
